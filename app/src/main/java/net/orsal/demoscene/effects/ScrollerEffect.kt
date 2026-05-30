@@ -7,10 +7,6 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.opengl.GLES20
 import android.opengl.GLUtils
-import net.orsal.demoscene.Effect
-import net.orsal.demoscene.EffectContext
-import net.orsal.demoscene.FullscreenQuad
-import net.orsal.demoscene.GLUtil
 import net.orsal.demoscene.R
 import kotlin.math.ceil
 import kotlin.math.min
@@ -20,65 +16,30 @@ import kotlin.math.min
  * cracktro would greet you. The message is baked once into a texture, then the
  * shader scrolls and waves it across the lower part of the screen.
  */
-class ScrollerEffect : Effect {
+class ScrollerEffect : FragmentEffect("Scroller", 18f) {
 
-    override val name = "Scroller"
-    override val duration = 18f
-
-    private var program = 0
-    private var aPos = 0
-    private var uTime = 0
-    private var uResolution = 0
-    private var uFade = 0
     private var uTex = 0
     private var uTexAspect = 0
-
-    private var width = 1f
-    private var height = 1f
 
     private var textureId = 0
     private var texAspect = 8f
 
-    private lateinit var quad: FullscreenQuad
+    override fun fragmentSource() = FRAGMENT
 
-    override fun onSurfaceCreated(context: EffectContext) {
-        quad = context.quad
-        program = GLUtil.buildProgram(VERTEX, FRAGMENT)
-        aPos = GLES20.glGetAttribLocation(program, "aPos")
-        uTime = GLES20.glGetUniformLocation(program, "uTime")
-        uResolution = GLES20.glGetUniformLocation(program, "uResolution")
-        uFade = GLES20.glGetUniformLocation(program, "uFade")
+    override fun onProgramReady(program: Int) {
         uTex = GLES20.glGetUniformLocation(program, "uTex")
         uTexAspect = GLES20.glGetUniformLocation(program, "uTexAspect")
-
-        val text = context.androidContext.getString(R.string.scroller_text)
-        textureId = buildTextTexture(text)
+        textureId = buildTextTexture(androidContext.getString(R.string.scroller_text))
     }
 
-    override fun onResize(width: Int, height: Int) {
-        this.width = width.toFloat()
-        this.height = height.toFloat()
-    }
-
-    override fun render(time: Float, fade: Float) {
-        GLES20.glUseProgram(program)
-        GLES20.glUniform1f(uTime, time)
-        GLES20.glUniform2f(uResolution, width, height)
-        GLES20.glUniform1f(uFade, fade)
+    override fun onRender(program: Int, time: Float) {
         GLES20.glUniform1f(uTexAspect, texAspect)
-
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId)
         GLES20.glUniform1i(uTex, 0)
-
-        quad.draw(aPos)
     }
 
-    override fun dispose() {
-        if (program != 0) {
-            GLES20.glDeleteProgram(program)
-            program = 0
-        }
+    override fun onDispose() {
         if (textureId != 0) {
             GLES20.glDeleteTextures(1, intArrayOf(textureId), 0)
             textureId = 0
@@ -145,15 +106,6 @@ class ScrollerEffect : Effect {
     }
 
     companion object {
-        private const val VERTEX = """
-            attribute vec2 aPos;
-            varying vec2 vPos;
-            void main() {
-                vPos = aPos;
-                gl_Position = vec4(aPos, 0.0, 1.0);
-            }
-        """
-
         private const val FRAGMENT = """
             precision highp float;
             varying vec2 vPos;

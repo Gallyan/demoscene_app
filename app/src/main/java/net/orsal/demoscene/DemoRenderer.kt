@@ -4,8 +4,12 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import net.orsal.demoscene.effects.ChromeTorusEffect
+import net.orsal.demoscene.effects.MandelbrotEffect
 import net.orsal.demoscene.effects.PlasmaEffect
+import net.orsal.demoscene.effects.RotozoomEffect
 import net.orsal.demoscene.effects.ScrollerEffect
+import net.orsal.demoscene.effects.StarfieldEffect
+import net.orsal.demoscene.effects.TunnelEffect
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -19,7 +23,11 @@ class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
     private val effects: List<Effect> = listOf(
         PlasmaEffect(),
+        RotozoomEffect(),
+        TunnelEffect(),
         ChromeTorusEffect(),
+        StarfieldEffect(),
+        MandelbrotEffect(),
         ScrollerEffect(),
     )
 
