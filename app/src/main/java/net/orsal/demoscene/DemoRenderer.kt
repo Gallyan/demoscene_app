@@ -35,7 +35,7 @@ import javax.microedition.khronos.opengles.GL10
  */
 class DemoRenderer(
     private val context: Context,
-    private val beatProvider: () -> Float,
+    private val audio: AudioSource,
     private val onEffectChanged: (name: String, voice: Boolean) -> Unit,
 ) : GLSurfaceView.Renderer {
 
@@ -77,7 +77,7 @@ class DemoRenderer(
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(0f, 0f, 0f, 1f)
-        effectContext = EffectContext(context, FullscreenQuad(), beatProvider)
+        effectContext = EffectContext(context, FullscreenQuad(), audio)
         effects.forEach { it.onSurfaceCreated(effectContext) }
         current = 0
         localTime = 0f

@@ -5,10 +5,13 @@ import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
 import java.util.Random
+import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.max
+import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.math.tanh
 
 /**
@@ -16,7 +19,7 @@ import kotlin.math.tanh
  * code (arpeggio + pulsing bass + lead melody + simple drums) and streamed
  * through an [AudioTrack] on its own thread. Authentic cracktro fuel.
  */
-class ChiptunePlayer {
+class ChiptunePlayer : AudioSource {
 
     @Volatile
     var muted = false
@@ -28,8 +31,11 @@ class ChiptunePlayer {
 
     /** Current playback position in beats, wrapped over a bar (0..4). */
     @Volatile
-    var beat = 0f
+    override var beat = 0f
         private set
+
+    /** Smoothed per-band spectrum magnitudes of what is currently playing. */
+    override val bands = FloatArray(AUDIO_BANDS)
 
     @Volatile
     private var running = false
@@ -95,12 +101,19 @@ class ChiptunePlayer {
         val samplesPerBeat = SAMPLE_RATE * 60.0 / BPM
         val barFrames = (samplesPerBeat * 4.0).toLong()
 
+        // Goertzel coefficients for log-spaced band centres (80 Hz .. 8 kHz).
+        val bandCoeff = DoubleArray(AUDIO_BANDS) { b ->
+            val f = 80.0 * (8000.0 / 80.0).pow(b / (AUDIO_BANDS - 1.0))
+            2.0 * cos(2.0 * Math.PI * f / SAMPLE_RATE)
+        }
+
         val chunk = ShortArray(CHUNK_FRAMES)
         var pos = 0
         var voicePos = 0
         var wasVoice = false
         var framesPlayed = 0L
         while (running) {
+            computeBands(song, pos, bandCoeff)
             for (i in 0 until CHUNK_FRAMES) {
                 var value = song[pos].toInt()
                 pos = (pos + 1) % song.size
@@ -127,6 +140,28 @@ class ChiptunePlayer {
             audioTrack.write(chunk, 0, CHUNK_FRAMES)
             framesPlayed += CHUNK_FRAMES
             beat = ((framesPlayed % barFrames) / samplesPerBeat).toFloat()
+        }
+    }
+
+    /** Update [bands] from a window of the song at the current play position. */
+    private fun computeBands(song: ShortArray, start: Int, coeff: DoubleArray) {
+        val window = 1024
+        for (b in 0 until AUDIO_BANDS) {
+            val c = coeff[b]
+            var s1 = 0.0
+            var s2 = 0.0
+            for (n in 0 until window) {
+                val x = song[(start + n) % song.size].toDouble()
+                val s0 = x + c * s1 - s2
+                s2 = s1
+                s1 = s0
+            }
+            val power = s1 * s1 + s2 * s2 - c * s1 * s2
+            var level = (sqrt(max(power, 0.0)) / (window * 5000.0)).toFloat()
+            level = level.coerceIn(0f, 1f).pow(0.6f)
+            val prev = bands[b]
+            // Rise instantly, fall back smoothly, like a real VU meter.
+            bands[b] = if (level > prev) level else prev * 0.82f + level * 0.18f
         }
     }
 

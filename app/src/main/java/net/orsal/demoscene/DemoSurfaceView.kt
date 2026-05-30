@@ -10,11 +10,11 @@ import android.view.MotionEvent
  */
 class DemoSurfaceView(
     context: Context,
-    beatProvider: () -> Float,
+    audio: AudioSource,
     onEffectChanged: (name: String, voice: Boolean) -> Unit,
 ) : GLSurfaceView(context) {
 
-    private val demoRenderer = DemoRenderer(context, beatProvider, onEffectChanged)
+    private val demoRenderer = DemoRenderer(context, audio, onEffectChanged)
 
     init {
         setEGLContextClientVersion(2)

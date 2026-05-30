@@ -2,6 +2,8 @@ package net.orsal.demoscene.effects
 
 import android.content.Context
 import android.opengl.GLES20
+import net.orsal.demoscene.AUDIO_BANDS
+import net.orsal.demoscene.AudioSource
 import net.orsal.demoscene.Effect
 import net.orsal.demoscene.EffectContext
 import net.orsal.demoscene.FullscreenQuad
@@ -24,8 +26,9 @@ abstract class FragmentEffect(
     private var uResolution = 0
     private var uFade = 0
     private var uBeat = 0
+    private var uBands = 0
 
-    private var beatProvider: () -> Float = { 0f }
+    private lateinit var audio: AudioSource
 
     protected var widthPx = 1f
         private set
@@ -52,13 +55,14 @@ abstract class FragmentEffect(
     final override fun onSurfaceCreated(context: EffectContext) {
         androidContext = context.androidContext
         quad = context.quad
-        beatProvider = context.beat
+        audio = context.audio
         program = GLUtil.buildProgram(VERTEX, fragmentSource())
         aPos = GLES20.glGetAttribLocation(program, "aPos")
         uTime = GLES20.glGetUniformLocation(program, "uTime")
         uResolution = GLES20.glGetUniformLocation(program, "uResolution")
         uFade = GLES20.glGetUniformLocation(program, "uFade")
         uBeat = GLES20.glGetUniformLocation(program, "uBeat")
+        uBands = GLES20.glGetUniformLocation(program, "uBands[0]")
         onProgramReady(program)
     }
 
@@ -73,7 +77,10 @@ abstract class FragmentEffect(
         GLES20.glUniform2f(uResolution, widthPx, heightPx)
         GLES20.glUniform1f(uFade, fade)
         if (uBeat >= 0) {
-            GLES20.glUniform1f(uBeat, beatProvider())
+            GLES20.glUniform1f(uBeat, audio.beat)
+        }
+        if (uBands >= 0) {
+            GLES20.glUniform1fv(uBands, AUDIO_BANDS, audio.bands, 0)
         }
         onRender(program, time)
         quad.draw(aPos)
