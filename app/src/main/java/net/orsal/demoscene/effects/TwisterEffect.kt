@@ -28,7 +28,10 @@ class TwisterEffect : FragmentEffect("Twister", 13f) {
                     float edge = w * cos(a);
                     float face = sin(a);
 
-                    float band = smoothstep(0.025, 0.0, abs(uv.x) - abs(edge));
+                    // Slither the whole column from side to side with a sine.
+                    float sway = 0.35 * sin(uTime * 1.3 + uv.y * 2.0 + fs);
+                    float x = uv.x - sway;
+                    float band = smoothstep(0.025, 0.0, abs(x) - abs(edge));
                     float shade = 0.35 + 0.65 * max(face, 0.0);
                     vec3 hue = 0.5 + 0.5 * cos(vec3(0.0, 2.0, 4.0) + fs * 2.0 + uv.y);
                     col += band * shade * hue;

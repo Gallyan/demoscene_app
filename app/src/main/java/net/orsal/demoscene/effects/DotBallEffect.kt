@@ -33,8 +33,8 @@ class DotBallEffect : FragmentEffect("DotBall", 13f) {
                 mat3 rot = rotY(uTime * 0.8) * rotX(uTime * 0.5);
                 vec3 col = vec3(0.0);
 
-                const float N = 200.0;
-                for (int i = 0; i < 200; i++) {
+                const float N = 150.0;
+                for (int i = 0; i < 150; i++) {
                     float fi = float(i);
                     float y = 1.0 - 2.0 * (fi + 0.5) / N;
                     float r = sqrt(max(0.0, 1.0 - y * y));
@@ -46,9 +46,10 @@ class DotBallEffect : FragmentEffect("DotBall", 13f) {
                     vec2 pp = sp.xy * persp * 1.6;
                     float depth = sp.z * 0.5 + 0.5;
 
-                    float rad = 0.010 + 0.020 * depth;
+                    // Bigger, softer dots so they don't shimmer/strobe.
+                    float rad = 0.016 + 0.030 * depth;
                     float d = length(uv - pp);
-                    float dot = smoothstep(rad, 0.0, d) * (0.25 + 0.85 * depth);
+                    float dot = smoothstep(rad, rad * 0.2, d) * (0.25 + 0.85 * depth);
 
                     vec3 hue = 0.5 + 0.5 * cos(vec3(0.0, 2.0, 4.0) + fi * 0.05);
                     col += dot * hue;

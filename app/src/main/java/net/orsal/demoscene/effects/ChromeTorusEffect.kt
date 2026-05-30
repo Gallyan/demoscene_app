@@ -46,9 +46,10 @@ class ChromeTorusEffect : FragmentEffect("ChromeTorus", 16f) {
             }
 
             mat3 gRot;
+            vec3 gCenter;
 
             float map(vec3 p) {
-                p = gRot * p;
+                p = gRot * (p - gCenter);
                 return sdTorus(p, vec2(1.0, 0.4));
             }
 
@@ -110,6 +111,9 @@ class ChromeTorusEffect : FragmentEffect("ChromeTorus", 16f) {
                 float ay = uTime * 0.30 + 1.2 * sin(uTime * 0.19 + 1.3);
                 float az = uTime * 0.40 + 1.1 * sin(uTime * 0.23);
                 gRot = rotZ(az) * rotY(ay) * rotX(ax);
+
+                // Glide left/right and forward/back over the floor.
+                gCenter = vec3(0.85 * sin(uTime * 0.6), 0.0, 0.6 * sin(uTime * 0.9));
 
                 vec3 ro = vec3(0.0, 0.55, 4.0);
                 vec3 rd = normalize(vec3(uv, -2.2));

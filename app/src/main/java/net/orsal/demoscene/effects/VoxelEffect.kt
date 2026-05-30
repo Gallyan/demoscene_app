@@ -36,12 +36,20 @@ class VoxelEffect : FragmentEffect("Voxel", 15f) {
                 return noise(p * 0.3) * 1.6 + noise(p * 0.9) * 0.5 - 1.0;
             }
 
+            mat3 rotY(float a) {
+                float c = cos(a); float s = sin(a);
+                return mat3(c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c);
+            }
+
             void main() {
                 vec2 uv = vPos;
                 uv.x *= uResolution.x / uResolution.y;
 
-                vec3 ro = vec3(0.0, 1.6, uTime * 3.0);
-                vec3 rd = normalize(vec3(uv.x, uv.y - 0.25, 1.0));
+                // Wander along a curving path instead of a straight line.
+                float wander = sin(uTime * 0.12);
+                vec3 ro = vec3(wander * 6.0, 1.6, uTime * 3.0);
+                float yaw = cos(uTime * 0.12) * 0.4;
+                vec3 rd = rotY(yaw) * normalize(vec3(uv.x, uv.y - 0.25, 1.0));
 
                 float t = 0.0;
                 bool hit = false;

@@ -24,7 +24,7 @@ import net.orsal.demoscene.effects.TunnelEffect
 import net.orsal.demoscene.effects.TwisterEffect
 import net.orsal.demoscene.effects.VoxelEffect
 import net.orsal.demoscene.effects.WaterEffect
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -35,6 +35,7 @@ import javax.microedition.khronos.opengles.GL10
  */
 class DemoRenderer(
     private val context: Context,
+    private val beatProvider: () -> Float,
     private val onEffectChanged: (name: String, voice: Boolean) -> Unit,
 ) : GLSurfaceView.Renderer {
 
@@ -68,7 +69,7 @@ class DemoRenderer(
     private var localTime = 0f
     private var lastFrameNanos = 0L
 
-    private val advanceRequested = AtomicBoolean(false)
+    private val pendingStep = AtomicInteger(0)
 
     private companion object {
         const val FADE = 0.8f
@@ -76,7 +77,7 @@ class DemoRenderer(
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(0f, 0f, 0f, 1f)
-        effectContext = EffectContext(context, FullscreenQuad())
+        effectContext = EffectContext(context, FullscreenQuad(), beatProvider)
         effects.forEach { it.onSurfaceCreated(effectContext) }
         current = 0
         localTime = 0f
@@ -97,9 +98,10 @@ class DemoRenderer(
 
         val effect = effects[current]
 
-        // Tap-only: the demo never auto-advances, it waits for a screen tap.
-        if (advanceRequested.getAndSet(false)) {
-            advance()
+        // Tap-only: tap left for the previous part, right for the next.
+        val step = pendingStep.getAndSet(0)
+        if (step != 0) {
+            advance(step)
             return
         }
 
@@ -109,8 +111,9 @@ class DemoRenderer(
         effect.render(localTime, fade)
     }
 
-    private fun advance() {
-        current = (current + 1) % effects.size
+    private fun advance(step: Int) {
+        val size = effects.size
+        current = ((current + step) % size + size) % size
         localTime = 0f
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         notifyEffect()
@@ -121,7 +124,8 @@ class DemoRenderer(
         onEffectChanged(effect.name, effect is PoulmouslipEffect)
     }
 
-    fun requestAdvance() {
-        advanceRequested.set(true)
+    /** dir = +1 for the next part, -1 for the previous one. */
+    fun requestStep(dir: Int) {
+        pendingStep.addAndGet(dir)
     }
 }

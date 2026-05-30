@@ -16,6 +16,10 @@ object VoiceSynth {
 
     private const val SAMPLE_RATE = 44100
 
+    // Carrier pitch = A3, the tonic of the chiptune's A-minor progression, so the
+    // robotic voice sits in the music's key instead of clashing with it.
+    private const val PITCH = 220.0
+
     /** One phoneme: duration, whether it is voiced, its three formants, level. */
     private class Phoneme(
         val durMs: Int,
@@ -67,7 +71,7 @@ object VoiceSynth {
                 val source: Double
                 if (ph.voiced) {
                     // Buzzy sawtooth carrier with a touch of vibrato.
-                    val freq = 132.0 * (1.0 + 0.01 * sin(2.0 * PI * 5.0 * globalSample / SAMPLE_RATE))
+                    val freq = PITCH * (1.0 + 0.01 * sin(2.0 * PI * 5.0 * globalSample / SAMPLE_RATE))
                     carrierPhase += freq / SAMPLE_RATE
                     source = 2.0 * (carrierPhase - floor(carrierPhase + 0.5))
                 } else {

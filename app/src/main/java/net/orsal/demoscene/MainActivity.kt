@@ -29,7 +29,7 @@ class MainActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         effectLabel = buildEffectLabel()
-        surfaceView = DemoSurfaceView(this) { name, voice ->
+        surfaceView = DemoSurfaceView(this, { music.beat }) { name, voice ->
             music.voiceActive = voice
             effectLabel.post { effectLabel.text = name }
         }
@@ -92,8 +92,8 @@ class MainActivity : Activity() {
         return TextView(this).apply {
             typeface = Typeface.create("sans-serif-thin", Typeface.NORMAL)
             setTextColor(Color.WHITE)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-            alpha = 0.6f
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
+            alpha = 0.75f
             isAllCaps = false
         }
     }

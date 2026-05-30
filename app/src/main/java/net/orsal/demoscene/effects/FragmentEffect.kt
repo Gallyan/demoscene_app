@@ -23,6 +23,9 @@ abstract class FragmentEffect(
     private var uTime = 0
     private var uResolution = 0
     private var uFade = 0
+    private var uBeat = 0
+
+    private var beatProvider: () -> Float = { 0f }
 
     protected var widthPx = 1f
         private set
@@ -49,11 +52,13 @@ abstract class FragmentEffect(
     final override fun onSurfaceCreated(context: EffectContext) {
         androidContext = context.androidContext
         quad = context.quad
+        beatProvider = context.beat
         program = GLUtil.buildProgram(VERTEX, fragmentSource())
         aPos = GLES20.glGetAttribLocation(program, "aPos")
         uTime = GLES20.glGetUniformLocation(program, "uTime")
         uResolution = GLES20.glGetUniformLocation(program, "uResolution")
         uFade = GLES20.glGetUniformLocation(program, "uFade")
+        uBeat = GLES20.glGetUniformLocation(program, "uBeat")
         onProgramReady(program)
     }
 
@@ -67,6 +72,9 @@ abstract class FragmentEffect(
         GLES20.glUniform1f(uTime, time)
         GLES20.glUniform2f(uResolution, widthPx, heightPx)
         GLES20.glUniform1f(uFade, fade)
+        if (uBeat >= 0) {
+            GLES20.glUniform1f(uBeat, beatProvider())
+        }
         onRender(program, time)
         quad.draw(aPos)
     }
