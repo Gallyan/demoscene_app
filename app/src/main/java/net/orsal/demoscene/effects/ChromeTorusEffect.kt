@@ -87,6 +87,13 @@ class ChromeTorusEffect : Effect {
                             -s, 0.0, c);
             }
 
+            mat3 rotZ(float a) {
+                float c = cos(a); float s = sin(a);
+                return mat3(c, -s, 0.0,
+                            s, c, 0.0,
+                            0.0, 0.0, 1.0);
+            }
+
             // Signed distance to a torus with radii t.x (ring) and t.y (tube).
             float sdTorus(vec3 p, vec2 t) {
                 vec2 q = vec2(length(p.xz) - t.x, p.y);
@@ -109,31 +116,58 @@ class ChromeTorusEffect : Effect {
                 ));
             }
 
-            // Procedural chrome environment: sky/ground gradient, a sun, and
-            // horizontal bands that the eye reads as reflected studio lights.
-            vec3 env(vec3 rd) {
-                float y = rd.y * 0.5 + 0.5;
-                vec3 sky = mix(vec3(0.05, 0.07, 0.16), vec3(0.55, 0.75, 1.0), y);
-                vec3 ground = vec3(0.10, 0.10, 0.12);
-                vec3 col = mix(ground, sky, smoothstep(-0.05, 0.05, rd.y));
+            const float FLOOR_Y = -1.7;
 
-                vec3 sunDir = normalize(vec3(0.6, 0.7, 0.4));
-                float sun = pow(max(dot(rd, sunDir), 0.0), 96.0);
-                col += vec3(1.0, 0.9, 0.7) * sun * 2.0;
+            // The whole world: a checkerboard floor and a graded sky with a hot
+            // horizon. Used both for the visible background AND for the torus
+            // reflection, so the donut mirrors the same floor you can see under
+            // it -- which is what finally reads as polished metal.
+            vec3 env(vec3 ro, vec3 rd) {
+                vec3 horizon = vec3(0.90, 0.95, 1.0);
+                vec3 zenith = vec3(0.10, 0.26, 0.70);
 
-                float bands = smoothstep(0.55, 0.6, sin(rd.y * 24.0 + 1.5) * 0.5 + 0.5);
-                col += bands * 0.25;
-                return col;
+                if (rd.y > 0.0) {
+                    vec3 col = mix(horizon, zenith, pow(rd.y, 0.5));
+                    col += horizon * 0.45 * exp(-rd.y * 11.0); // hot horizon glow
+
+                    float ang = atan(rd.x, rd.z);
+                    float strip = smoothstep(0.66, 0.70, sin(ang * 2.0 + 0.7) * 0.5 + 0.5);
+                    col += strip * 0.4 * smoothstep(0.05, 0.7, rd.y);
+
+                    vec3 sunDir = normalize(vec3(0.45, 0.5, 0.5));
+                    col += vec3(1.0, 0.96, 0.85) * pow(max(dot(rd, sunDir), 0.0), 300.0) * 4.0;
+                    return col;
+                }
+
+                float td = (FLOOR_Y - ro.y) / rd.y;
+                vec3 gp = ro + rd * td;
+
+                vec2 cell = floor(gp.xz);
+                float checker = mod(cell.x + cell.y, 2.0);
+                vec3 floorCol = mix(vec3(0.02, 0.03, 0.05), vec3(0.12, 0.16, 0.24), checker);
+
+                vec2 edge = abs(fract(gp.xz) - 0.5);
+                float line = 1.0 - smoothstep(0.0, 0.04, min(edge.x, edge.y));
+                floorCol = mix(floorCol, vec3(0.35, 0.5, 0.8), line * 0.6);
+
+                float fog = clamp(1.0 - exp(-td * 0.06), 0.0, 1.0);
+                return mix(floorCol, horizon, fog);
             }
 
             void main() {
                 vec2 uv = vPos;
                 uv.x *= uResolution.x / uResolution.y;
 
-                gRot = rotY(uTime * 0.7) * rotX(uTime * 0.45 + 0.5);
+                // Tumble on three axes with non-constant angular velocity so
+                // the donut keeps changing the way it turns instead of spinning
+                // flatly in one direction.
+                float ax = uTime * 0.45 + 1.0 * sin(uTime * 0.27);
+                float ay = uTime * 0.30 + 1.2 * sin(uTime * 0.19 + 1.3);
+                float az = uTime * 0.40 + 1.1 * sin(uTime * 0.23);
+                gRot = rotZ(az) * rotY(ay) * rotX(ax);
 
-                vec3 ro = vec3(0.0, 0.0, 4.0);
-                vec3 rd = normalize(vec3(uv, -2.0));
+                vec3 ro = vec3(0.0, 0.55, 4.0);
+                vec3 rd = normalize(vec3(uv, -2.2));
 
                 float t = 0.0;
                 float d = 0.0;
@@ -152,11 +186,11 @@ class ChromeTorusEffect : Effect {
                     vec3 n = calcNormal(pos);
                     vec3 refl = reflect(rd, n);
 
-                    vec3 chrome = env(refl);
+                    vec3 chrome = env(pos, refl);
 
                     // Fresnel makes grazing angles brighter, like real metal.
                     float fresnel = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
-                    chrome = mix(chrome, vec3(1.0), fresnel * 0.6);
+                    chrome = mix(chrome, vec3(1.0), fresnel * 0.75);
 
                     // Tight specular glint.
                     vec3 lightDir = normalize(vec3(0.6, 0.7, 0.4));
@@ -166,9 +200,9 @@ class ChromeTorusEffect : Effect {
                     // Faint blue metallic tint.
                     color = chrome * vec3(0.92, 0.96, 1.0);
                 } else {
-                    // Background: a dim starfield-ish gradient so the torus pops.
-                    float g = 0.5 - 0.5 * uv.y;
-                    color = mix(vec3(0.02, 0.02, 0.05), vec3(0.06, 0.04, 0.12), g);
+                    // Background: the same world (checker floor + sky) the torus
+                    // reflects, so the donut visibly sits on a reflective floor.
+                    color = env(ro, rd);
                 }
 
                 color = pow(color, vec3(0.4545)); // gamma
