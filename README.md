@@ -7,37 +7,46 @@ l'esprit de la demoscene. Pas de menu, pas d'UI : ça se lance, ça joue.
 
 La démo est **pilotée au tap** : chaque partie fait son fondu d'entrée et reste
 à l'écran ; un **tap** (ailleurs que sur l'icône son) passe à la suivante. Le
-nom de l'effet en cours s'affiche discrètement en bas à gauche. Les 21 parties,
+nom de l'effet en cours s'affiche discrètement en bas à gauche. Les 24 parties,
 dans l'ordre :
 
 1. **Plasma** — somme de champs sinusoïdaux dans une palette qui cycle.
 2. **Rotozoom** — damier infini qui tourne et zoome.
 3. **Tunnel** — couloir texturé tordu avec fog au centre.
 4. **Interference** — moiré de deux jeux de cercles concentriques.
-5. **Twister** — rubans verticaux qui se vrillent en colonne.
-6. **Chrome Torus** — donut 3D chromé *raymarché* sur sol damier réfléchissant.
+5. **Twister** — rubans verticaux qui se vrillent et ondulent en colonne.
+6. **Chrome Torus** — donut 3D chromé *raymarché* sur sol damier réfléchissant,
+   qui glisse gauche/droite et avant/arrière.
 7. **Metaballs** — blobs qui fusionnent (champ scalaire seuillé).
 8. **Fire** — feu par bruit fractal montant, palette de flammes.
 9. **Water** — ondes circulaires réfractant un damier, avec spéculaire.
 10. **Bump** — bump mapping procédural éclairé par une lampe qui tourne.
 11. **Glenz** — octaèdre translucide (faces avant + arrière) façon glenz vectors.
-12. **DotBall** — sphère de points (bobs) projetée en perspective.
-13. **Kefren** — rideau de barres verticales qui ondule.
-14. **Shadebobs** — bobs laissant une traînée de phosphore.
-15. **Voxel** — paysage de hauteur survolé, raymarché, avec fog.
-16. **Starfield** — étoiles 3D fonçant vers la caméra (avec traînées).
-17. **Particles** — fontaine de particules balistiques sous gravité.
-18. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
-19. **Mandelbrot** — zoom continu dans la fractale, palette qui cycle.
-20. **Poulmouslip** — quatre poulettes en slip dans un bateau gonflable qui
+12. **Virus** — boule à piques raymarchée, piques qui grandissent avec les
+    basses de la musique.
+13. **DotBall** — sphère de points (bobs) projetée en perspective.
+14. **Kefren** — rideau de barres verticales qui ondule.
+15. **Spectrum** — analyseur de spectre 32 bandes piloté par la musique, dégradé
+    arc-en-ciel sur la hauteur.
+16. **Dancer** — silhouette articulée qui danse façon *State of the Art*, couleurs
+    qui flashent en rythme.
+17. **Shadebobs** — bobs laissant une traînée de phosphore.
+18. **Voxel** — paysage de hauteur survolé sur un chemin qui serpente, raymarché.
+19. **Starfield** — étoiles 3D fonçant vers la caméra (avec traînées).
+20. **Particles** — fontaine de particules balistiques sous gravité.
+21. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
+22. **Mandelbrot** — zoom + rotation continus dans la fractale, palette qui cycle.
+23. **Poulmouslip** — quatre poulettes en slip dans un bateau gonflable qui
     flotte sur une rivière (eau qui coule, berges, ciel), en 3D raymarchée, avec
     un scroll « ON EST DES POULMOUSLIP !! ». Pendant cette partie, une voix
     robotique façon talkbox (synthétisée par formants) scande « poulmouslip »
-    par-dessus la musique (qui est atténuée pour la laisser passer).
-21. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
+    par-dessus la musique, accordée sur sa tonalité.
+24. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
 
 Une **musique chiptune** synthétisée en code tourne en fond ; une icône
-haut-parleur en haut à droite coupe/réactive le son.
+haut-parleur en haut à droite coupe/réactive le son. Plusieurs effets (Spectrum,
+Virus, Kefren, Dancer) réagissent au spectre / au tempo de la musique via une
+analyse audio temps réel (`AudioSource`).
 
 ## Stack
 

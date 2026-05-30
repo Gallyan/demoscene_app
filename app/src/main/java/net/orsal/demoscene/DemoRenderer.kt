@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import net.orsal.demoscene.effects.BumpEffect
 import net.orsal.demoscene.effects.ChromeTorusEffect
+import net.orsal.demoscene.effects.DancerEffect
 import net.orsal.demoscene.effects.DotBallEffect
 import net.orsal.demoscene.effects.FeedbackEffect
 import net.orsal.demoscene.effects.FireEffect
@@ -23,6 +24,7 @@ import net.orsal.demoscene.effects.SpectrumEffect
 import net.orsal.demoscene.effects.StarfieldEffect
 import net.orsal.demoscene.effects.TunnelEffect
 import net.orsal.demoscene.effects.TwisterEffect
+import net.orsal.demoscene.effects.VirusEffect
 import net.orsal.demoscene.effects.VoxelEffect
 import net.orsal.demoscene.effects.WaterEffect
 import java.util.concurrent.atomic.AtomicInteger
@@ -52,9 +54,11 @@ class DemoRenderer(
         WaterEffect(),
         BumpEffect(),
         GlenzEffect(),
+        VirusEffect(),
         DotBallEffect(),
         KefrenEffect(),
         SpectrumEffect(),
+        DancerEffect(),
         ShadebobsEffect(),
         VoxelEffect(),
         StarfieldEffect(),
