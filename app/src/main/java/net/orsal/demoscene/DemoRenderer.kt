@@ -5,7 +5,6 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import net.orsal.demoscene.effects.BumpEffect
 import net.orsal.demoscene.effects.ChromeTorusEffect
-import net.orsal.demoscene.effects.DancerEffect
 import net.orsal.demoscene.effects.DotBallEffect
 import net.orsal.demoscene.effects.FeedbackEffect
 import net.orsal.demoscene.effects.FireEffect
@@ -16,7 +15,6 @@ import net.orsal.demoscene.effects.MandelbrotEffect
 import net.orsal.demoscene.effects.MetaballsEffect
 import net.orsal.demoscene.effects.ParticlesEffect
 import net.orsal.demoscene.effects.PlasmaEffect
-import net.orsal.demoscene.effects.PoulmouslipEffect
 import net.orsal.demoscene.effects.RotozoomEffect
 import net.orsal.demoscene.effects.ScrollerEffect
 import net.orsal.demoscene.effects.ShadebobsEffect
@@ -39,7 +37,7 @@ import javax.microedition.khronos.opengles.GL10
 class DemoRenderer(
     private val context: Context,
     private val audio: AudioSource,
-    private val onEffectChanged: (name: String, voice: Boolean) -> Unit,
+    private val onEffectChanged: (name: String) -> Unit,
 ) : GLSurfaceView.Renderer {
 
     private val effects: List<Effect> = listOf(
@@ -58,14 +56,12 @@ class DemoRenderer(
         DotBallEffect(),
         KefrenEffect(),
         SpectrumEffect(),
-        DancerEffect(),
         ShadebobsEffect(),
         VoxelEffect(),
         StarfieldEffect(),
         ParticlesEffect(),
         FeedbackEffect(),
         MandelbrotEffect(),
-        PoulmouslipEffect(),
         ScrollerEffect(),
     )
 
@@ -126,8 +122,7 @@ class DemoRenderer(
     }
 
     private fun notifyEffect() {
-        val effect = effects[current]
-        onEffectChanged(effect.name, effect is PoulmouslipEffect)
+        onEffectChanged(effects[current].name)
     }
 
     /** dir = +1 for the next part, -1 for the previous one. */

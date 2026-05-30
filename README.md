@@ -7,7 +7,7 @@ l'esprit de la demoscene. Pas de menu, pas d'UI : ça se lance, ça joue.
 
 La démo est **pilotée au tap** : chaque partie fait son fondu d'entrée et reste
 à l'écran ; un **tap** (ailleurs que sur l'icône son) passe à la suivante. Le
-nom de l'effet en cours s'affiche discrètement en bas à gauche. Les 24 parties,
+nom de l'effet en cours s'affiche discrètement en bas à gauche. Les 22 parties,
 dans l'ordre :
 
 1. **Plasma** — somme de champs sinusoïdaux dans une palette qui cycle.
@@ -28,25 +28,22 @@ dans l'ordre :
 14. **Kefren** — rideau de barres verticales qui ondule.
 15. **Spectrum** — analyseur de spectre 32 bandes piloté par la musique, dégradé
     arc-en-ciel sur la hauteur.
-16. **Dancer** — silhouette articulée qui danse façon *State of the Art*, couleurs
-    qui flashent en rythme.
-17. **Shadebobs** — bobs laissant une traînée de phosphore.
-18. **Voxel** — paysage de hauteur survolé sur un chemin qui serpente, raymarché.
-19. **Starfield** — étoiles 3D fonçant vers la caméra (avec traînées).
-20. **Particles** — fontaine de particules balistiques sous gravité.
-21. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
-22. **Mandelbrot** — zoom + rotation continus dans la fractale, palette qui cycle.
-23. **Poulmouslip** — quatre poulettes en slip dans un bateau gonflable qui
-    flotte sur une rivière (eau qui coule, berges, ciel), en 3D raymarchée, avec
-    un scroll « ON EST DES POULMOUSLIP !! ». Pendant cette partie, une voix
-    robotique façon talkbox (synthétisée par formants) scande « poulmouslip »
-    par-dessus la musique, accordée sur sa tonalité.
-24. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
+16. **Shadebobs** — bobs laissant une traînée de phosphore.
+17. **Voxel** — paysage de hauteur survolé sur un chemin qui serpente, raymarché.
+18. **Starfield** — étoiles 3D fonçant vers la caméra (avec traînées).
+19. **Particles** — fontaine de particules balistiques sous gravité.
+20. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
+21. **Mandelbrot** — zoom + rotation continus dans la fractale, palette qui cycle.
+22. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
 
 Une **musique chiptune** synthétisée en code tourne en fond ; une icône
 haut-parleur en haut à droite coupe/réactive le son. Plusieurs effets (Spectrum,
-Virus, Kefren, Dancer) réagissent au spectre / au tempo de la musique via une
-analyse audio temps réel (`AudioSource`).
+Virus, Kefren) réagissent au spectre / au tempo de la musique via une analyse
+audio temps réel (`AudioSource`).
+
+> L'effet **Poulmouslip** (poulettes en slip + voix talkbox) et la **Dancer**
+> ont existé puis ont été retirés ; ils restent récupérables via le tag git
+> `poulmouslip`.
 
 ## Stack
 
@@ -73,11 +70,10 @@ Ouvrir le dossier dans Android Studio et lancer (Run ▶) sur un appareil ou un
 - `FragmentEffect` — classe de base pour les effets « plein écran » : gère le
   quad et les uniforms standard (`uTime`, `uResolution`, `uFade`), avec des
   hooks pour les uniforms/ressources supplémentaires (textures…).
-- `ChiptunePlayer` — synthétise et streame la musique, et mixe la voix quand
-  `voiceActive` est vrai (aucun fichier audio).
-- `VoiceSynth` — synthèse de parole par formants ("poulmouslip", style talkbox).
+- `ChiptunePlayer` — synthétise et streame la musique (aucun fichier audio), et
+  expose une analyse temps réel (`AudioSource` : beat + spectre 32 bandes).
 - `TextTexture` — cuit une chaîne en texture pour les effets de scroll.
-- `effects/` — les 21 effets ci-dessus.
+- `effects/` — les 22 effets ci-dessus.
 
 ## Ajouter un effet
 

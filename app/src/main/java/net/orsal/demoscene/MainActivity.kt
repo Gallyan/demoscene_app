@@ -29,8 +29,7 @@ class MainActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         effectLabel = buildEffectLabel()
-        surfaceView = DemoSurfaceView(this, music) { name, voice ->
-            music.voiceActive = voice
+        surfaceView = DemoSurfaceView(this, music) { name ->
             effectLabel.post { effectLabel.text = name }
         }
         soundButton = buildSoundButton()

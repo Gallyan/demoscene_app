@@ -11,7 +11,7 @@ import android.view.MotionEvent
 class DemoSurfaceView(
     context: Context,
     audio: AudioSource,
-    onEffectChanged: (name: String, voice: Boolean) -> Unit,
+    onEffectChanged: (name: String) -> Unit,
 ) : GLSurfaceView(context) {
 
     private val demoRenderer = DemoRenderer(context, audio, onEffectChanged)
