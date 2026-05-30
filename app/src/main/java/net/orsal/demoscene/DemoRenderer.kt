@@ -3,13 +3,26 @@ package net.orsal.demoscene
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import net.orsal.demoscene.effects.BumpEffect
 import net.orsal.demoscene.effects.ChromeTorusEffect
+import net.orsal.demoscene.effects.DotBallEffect
+import net.orsal.demoscene.effects.FeedbackEffect
+import net.orsal.demoscene.effects.FireEffect
+import net.orsal.demoscene.effects.GlenzEffect
+import net.orsal.demoscene.effects.InterferenceEffect
+import net.orsal.demoscene.effects.KefrenEffect
 import net.orsal.demoscene.effects.MandelbrotEffect
+import net.orsal.demoscene.effects.MetaballsEffect
+import net.orsal.demoscene.effects.ParticlesEffect
 import net.orsal.demoscene.effects.PlasmaEffect
 import net.orsal.demoscene.effects.RotozoomEffect
 import net.orsal.demoscene.effects.ScrollerEffect
+import net.orsal.demoscene.effects.ShadebobsEffect
 import net.orsal.demoscene.effects.StarfieldEffect
 import net.orsal.demoscene.effects.TunnelEffect
+import net.orsal.demoscene.effects.TwisterEffect
+import net.orsal.demoscene.effects.VoxelEffect
+import net.orsal.demoscene.effects.WaterEffect
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -25,8 +38,21 @@ class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
         PlasmaEffect(),
         RotozoomEffect(),
         TunnelEffect(),
+        InterferenceEffect(),
+        TwisterEffect(),
         ChromeTorusEffect(),
+        MetaballsEffect(),
+        FireEffect(),
+        WaterEffect(),
+        BumpEffect(),
+        GlenzEffect(),
+        DotBallEffect(),
+        KefrenEffect(),
+        ShadebobsEffect(),
+        VoxelEffect(),
         StarfieldEffect(),
+        ParticlesEffect(),
+        FeedbackEffect(),
         MandelbrotEffect(),
         ScrollerEffect(),
     )

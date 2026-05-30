@@ -27,27 +27,36 @@ class StarfieldEffect : FragmentEffect("Starfield", 12f) {
 
                 vec3 col = vec3(0.0);
 
-                for (int i = 0; i < 110; i++) {
+                for (int i = 0; i < 90; i++) {
                     float fi = float(i);
                     // Fixed screen direction for this star.
                     vec2 dir = vec2(hash(fi) * 2.0 - 1.0, hash(fi + 7.1) * 2.0 - 1.0);
                     // Depth cycles 0 (far) -> 1 (near), staggered per star.
-                    float z = fract(hash(fi + 3.3) + uTime * 0.35);
+                    float z = fract(hash(fi + 3.3) + uTime * 0.4);
 
                     vec2 pos = dir / (1.05 - z);
-                    float d = length(uv - pos);
 
-                    // A small soft dot, plus a short streak for the near ones.
-                    float dot = smoothstep(0.012, 0.0, d);
-                    float star = dot * z * z;
+                    // Anisotropic dot: a round core that grows as the star nears,
+                    // stretched into a trail behind it (toward the centre) so the
+                    // motion reads clearly.
+                    vec2 delta = uv - pos;
+                    vec2 radial = normalize(pos + 0.0001);
+                    float along = dot(delta, radial);
+                    float perp = dot(delta, vec2(-radial.y, radial.x));
 
-                    // Twinkle / colour per star.
-                    vec3 tint = 0.6 + 0.4 * vec3(
+                    float core = 0.006 + 0.05 * z * z;
+                    float trail = (along < 0.0) ? (0.06 + 0.35 * z) : core;
+                    float dd = (along * along) / (trail * trail)
+                        + (perp * perp) / (core * core);
+                    float star = exp(-dd) * (0.4 + 1.3 * z);
+
+                    vec3 tint = 0.65 + 0.35 * vec3(
                         hash(fi + 1.0), hash(fi + 2.0), hash(fi + 5.0)
                     );
                     col += star * tint;
                 }
 
+                col = min(col, vec3(1.3));
                 gl_FragColor = vec4(col * uFade, 1.0);
             }
         """
