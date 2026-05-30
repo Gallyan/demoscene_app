@@ -28,7 +28,11 @@ La démo est **pilotée au tap** : chaque partie fait son fondu d'entrée et res
 17. **Particles** — fontaine de particules balistiques sous gravité.
 18. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
 19. **Mandelbrot** — zoom continu dans la fractale, palette qui cycle.
-20. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
+20. **Poulmouslip** — une poulette de l'espace en slip, en 3D raymarchée, qui
+    tourne sur un fond étoilé, avec un scroll « ON EST DES POULMOUSLIP !! ».
+    Pendant cette partie, une voix robotique façon talkbox (synthétisée par
+    formants) scande « poulmouslip » par-dessus la musique.
+21. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
 
 Une **musique chiptune** synthétisée en code tourne en fond ; une icône
 haut-parleur en haut à droite coupe/réactive le son.
@@ -58,8 +62,11 @@ Ouvrir le dossier dans Android Studio et lancer (Run ▶) sur un appareil ou un
 - `FragmentEffect` — classe de base pour les effets « plein écran » : gère le
   quad et les uniforms standard (`uTime`, `uResolution`, `uFade`), avec des
   hooks pour les uniforms/ressources supplémentaires (textures…).
-- `ChiptunePlayer` — synthétise et streame la musique (aucun fichier audio).
-- `effects/` — les 20 effets ci-dessus.
+- `ChiptunePlayer` — synthétise et streame la musique, et mixe la voix quand
+  `voiceActive` est vrai (aucun fichier audio).
+- `VoiceSynth` — synthèse de parole par formants ("poulmouslip", style talkbox).
+- `TextTexture` — cuit une chaîne en texture pour les effets de scroll.
+- `effects/` — les 21 effets ci-dessus.
 
 ## Ajouter un effet
 

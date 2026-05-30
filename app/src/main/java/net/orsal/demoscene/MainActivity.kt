@@ -23,7 +23,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        surfaceView = DemoSurfaceView(this)
+        surfaceView = DemoSurfaceView(this) { active -> music.voiceActive = active }
         soundButton = buildSoundButton()
 
         val root = FrameLayout(this).apply {

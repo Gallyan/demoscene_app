@@ -8,9 +8,12 @@ import android.view.MotionEvent
  * GL surface configured for ES 2.0 that forwards taps to the renderer so the
  * viewer can skip to the next part of the demo.
  */
-class DemoSurfaceView(context: Context) : GLSurfaceView(context) {
+class DemoSurfaceView(
+    context: Context,
+    onVoiceActive: (Boolean) -> Unit,
+) : GLSurfaceView(context) {
 
-    private val demoRenderer = DemoRenderer(context)
+    private val demoRenderer = DemoRenderer(context, onVoiceActive)
 
     init {
         setEGLContextClientVersion(2)

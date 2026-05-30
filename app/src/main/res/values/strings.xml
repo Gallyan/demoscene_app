@@ -2,5 +2,6 @@
 <resources>
     <string name="app_name">DemoScene</string>
     <string name="sound_toggle">Activer ou couper le son</string>
+    <string name="poulmouslip_text">          ON EST DES POULMOUSLIP !!!          POULE MOUILLEE EN SLIP DE L\'ESPACE !!!          </string>
     <string name="scroller_text">              WELCOME TO THE DEMOSCENE …    THIS LITTLE PROD IS CODED WITH OPENGL ES ON ANDROID …    GREETINGS TO ALL THE OLDSCHOOL CODERS, SWAPPERS AND PIXEL ARTISTS OUT THERE …    PLASMA, A CHROME DONUT AND A SINE SCROLLER LIKE IN THE GOOD OLD DAYS …    TAP THE SCREEN TO SKIP TO THE NEXT EFFECT …    STAY TUNED, MORE EFFECTS COMING SOON …    WRAP … WRAP … WRAP …              </string>
 </resources>

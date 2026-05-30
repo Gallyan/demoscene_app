@@ -22,6 +22,10 @@ class ChiptunePlayer {
     var muted = false
         private set
 
+    /** When true, the spoken "poulmouslip" voice is mixed over the music. */
+    @Volatile
+    var voiceActive = false
+
     @Volatile
     private var running = false
     private var thread: Thread? = null
@@ -54,6 +58,7 @@ class ChiptunePlayer {
 
     private fun runAudioLoop() {
         val song = buildSong()
+        val voice = VoiceSynth.build()
 
         val minBuffer = AudioTrack.getMinBufferSize(
             SAMPLE_RATE,
@@ -84,11 +89,29 @@ class ChiptunePlayer {
 
         val chunk = ShortArray(CHUNK_FRAMES)
         var pos = 0
+        var voicePos = 0
+        var wasVoice = false
         while (running) {
             for (i in 0 until CHUNK_FRAMES) {
-                val sample = song[pos]
+                var value = song[pos].toInt()
                 pos = (pos + 1) % song.size
-                chunk[i] = if (muted) 0 else sample
+
+                if (voiceActive) {
+                    // Restart the utterance whenever the voice is (re)enabled.
+                    if (!wasVoice) {
+                        voicePos = 0
+                        wasVoice = true
+                    }
+                    value += voice[voicePos].toInt()
+                    voicePos = (voicePos + 1) % voice.size
+                } else {
+                    wasVoice = false
+                }
+
+                if (muted) {
+                    value = 0
+                }
+                chunk[i] = value.coerceIn(-32768, 32767).toShort()
             }
             audioTrack.write(chunk, 0, CHUNK_FRAMES)
         }

@@ -15,6 +15,7 @@ import net.orsal.demoscene.effects.MandelbrotEffect
 import net.orsal.demoscene.effects.MetaballsEffect
 import net.orsal.demoscene.effects.ParticlesEffect
 import net.orsal.demoscene.effects.PlasmaEffect
+import net.orsal.demoscene.effects.PoulmouslipEffect
 import net.orsal.demoscene.effects.RotozoomEffect
 import net.orsal.demoscene.effects.ScrollerEffect
 import net.orsal.demoscene.effects.ShadebobsEffect
@@ -32,7 +33,10 @@ import javax.microedition.khronos.opengles.GL10
  * when a part's duration elapses, and cross-fades each transition through black.
  * A tap requests an immediate jump to the next part.
  */
-class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
+class DemoRenderer(
+    private val context: Context,
+    private val onVoiceActive: (Boolean) -> Unit,
+) : GLSurfaceView.Renderer {
 
     private val effects: List<Effect> = listOf(
         PlasmaEffect(),
@@ -54,6 +58,7 @@ class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
         ParticlesEffect(),
         FeedbackEffect(),
         MandelbrotEffect(),
+        PoulmouslipEffect(),
         ScrollerEffect(),
     )
 
@@ -76,6 +81,7 @@ class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
         current = 0
         localTime = 0f
         lastFrameNanos = 0L
+        notifyVoice()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -107,6 +113,11 @@ class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
         current = (current + 1) % effects.size
         localTime = 0f
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        notifyVoice()
+    }
+
+    private fun notifyVoice() {
+        onVoiceActive(effects[current] is PoulmouslipEffect)
     }
 
     fun requestAdvance() {
