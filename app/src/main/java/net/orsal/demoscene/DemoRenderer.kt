@@ -65,14 +65,13 @@ class DemoRenderer(private val context: Context) : GLSurfaceView.Renderer {
 
         val effect = effects[current]
 
-        if (advanceRequested.getAndSet(false) || localTime >= effect.duration) {
+        // Tap-only: the demo never auto-advances, it waits for a screen tap.
+        if (advanceRequested.getAndSet(false)) {
             advance()
             return
         }
 
-        val fadeIn = (localTime / FADE).coerceIn(0f, 1f)
-        val fadeOut = ((effect.duration - localTime) / FADE).coerceIn(0f, 1f)
-        val fade = minOf(fadeIn, fadeOut)
+        val fade = (localTime / FADE).coerceIn(0f, 1f)
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         effect.render(localTime, fade)

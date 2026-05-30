@@ -9,7 +9,11 @@ interface Effect {
     /** Display name, handy for logging. */
     val name: String
 
-    /** How long this part plays before the demo auto-advances, in seconds. */
+    /**
+     * Suggested natural length of this part, in seconds. The demo is currently
+     * tap-driven so this is informational, but it documents intended pacing and
+     * could drive an optional auto-advance mode later.
+     */
     val duration: Float
 
     /** Compile shaders and allocate GL resources. */
