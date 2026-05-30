@@ -5,18 +5,33 @@ l'esprit de la demoscene. Pas de menu, pas d'UI : ça se lance, ça joue.
 
 ## Effets
 
-Les parties s'enchaînent automatiquement sur une timeline (fondus au noir entre
-chaque), et un **tap** sur l'écran saute à la suivante. Dans l'ordre :
+La démo est **pilotée au tap** : chaque partie fait son fondu d'entrée et reste
+à l'écran ; un **tap** (ailleurs que sur l'icône son) passe à la suivante. Les
+20 parties, dans l'ordre :
 
-1. **Plasma** — somme de champs sinusoïdaux poussée dans une palette qui cycle.
-2. **Rotozoom** — damier infini qui tourne et zoome, avec cycling de couleurs.
-3. **Tunnel** — couloir texturé infini, légèrement tordu, avec fog au centre.
-4. **Chrome Torus** — donut 3D chromé *raymarché* (SDF de tore) posé sur un sol
-   damier réfléchissant, fresnel et spéculaire ; il culbute sur 3 axes.
-5. **Starfield** — champ d'étoiles 3D qui foncent vers la caméra.
-6. **Mandelbrot** — zoom continu dans la fractale avec palette qui cycle.
-7. **Scroller** — scroll sinusoïdal façon logon-screen au-dessus de copper bars.
-   Le texte est cuit une fois dans une texture puis ondulé par le shader.
+1. **Plasma** — somme de champs sinusoïdaux dans une palette qui cycle.
+2. **Rotozoom** — damier infini qui tourne et zoome.
+3. **Tunnel** — couloir texturé tordu avec fog au centre.
+4. **Interference** — moiré de deux jeux de cercles concentriques.
+5. **Twister** — rubans verticaux qui se vrillent en colonne.
+6. **Chrome Torus** — donut 3D chromé *raymarché* sur sol damier réfléchissant.
+7. **Metaballs** — blobs qui fusionnent (champ scalaire seuillé).
+8. **Fire** — feu par bruit fractal montant, palette de flammes.
+9. **Water** — ondes circulaires réfractant un damier, avec spéculaire.
+10. **Bump** — bump mapping procédural éclairé par une lampe qui tourne.
+11. **Glenz** — octaèdre translucide (faces avant + arrière) façon glenz vectors.
+12. **DotBall** — sphère de points (bobs) projetée en perspective.
+13. **Kefren** — rideau de barres verticales qui ondule.
+14. **Shadebobs** — bobs laissant une traînée de phosphore.
+15. **Voxel** — paysage de hauteur survolé, raymarché, avec fog.
+16. **Starfield** — étoiles 3D fonçant vers la caméra (avec traînées).
+17. **Particles** — fontaine de particules balistiques sous gravité.
+18. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
+19. **Mandelbrot** — zoom continu dans la fractale, palette qui cycle.
+20. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
+
+Une **musique chiptune** synthétisée en code tourne en fond ; une icône
+haut-parleur en haut à droite coupe/réactive le son.
 
 ## Stack
 
@@ -43,7 +58,8 @@ Ouvrir le dossier dans Android Studio et lancer (Run ▶) sur un appareil ou un
 - `FragmentEffect` — classe de base pour les effets « plein écran » : gère le
   quad et les uniforms standard (`uTime`, `uResolution`, `uFade`), avec des
   hooks pour les uniforms/ressources supplémentaires (textures…).
-- `effects/` — les 7 effets ci-dessus.
+- `ChiptunePlayer` — synthétise et streame la musique (aucun fichier audio).
+- `effects/` — les 20 effets ci-dessus.
 
 ## Ajouter un effet
 
