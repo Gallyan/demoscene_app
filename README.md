@@ -6,14 +6,17 @@ l'esprit de la demoscene. Pas de menu, pas d'UI : ça se lance, ça joue.
 ## Effets
 
 Les parties s'enchaînent automatiquement sur une timeline (fondus au noir entre
-chaque), et un **tap** sur l'écran saute à la suivante.
+chaque), et un **tap** sur l'écran saute à la suivante. Dans l'ordre :
 
-1. **Plasma** — le plasma classique : somme de champs sinusoïdaux poussée dans
-   une palette qui cycle.
-2. **Chrome Torus** — un donut 3D chromé *raymarché* (SDF de tore), avec
-   réflexion d'environnement procédurale, fresnel et spéculaire.
-3. **Scroller** — un scroll sinusoïdal façon logon-screen, au-dessus de copper
-   bars. Le texte est cuit une fois dans une texture puis ondulé par le shader.
+1. **Plasma** — somme de champs sinusoïdaux poussée dans une palette qui cycle.
+2. **Rotozoom** — damier infini qui tourne et zoome, avec cycling de couleurs.
+3. **Tunnel** — couloir texturé infini, légèrement tordu, avec fog au centre.
+4. **Chrome Torus** — donut 3D chromé *raymarché* (SDF de tore) posé sur un sol
+   damier réfléchissant, fresnel et spéculaire ; il culbute sur 3 axes.
+5. **Starfield** — champ d'étoiles 3D qui foncent vers la caméra.
+6. **Mandelbrot** — zoom continu dans la fractale avec palette qui cycle.
+7. **Scroller** — scroll sinusoïdal façon logon-screen au-dessus de copper bars.
+   Le texte est cuit une fois dans une texture puis ondulé par le shader.
 
 ## Stack
 
@@ -36,12 +39,26 @@ Ouvrir le dossier dans Android Studio et lancer (Run ▶) sur un appareil ou un
 - `MainActivity` — plein écran immersif, garde l'écran allumé.
 - `DemoSurfaceView` — surface GL ES 2.0, relaie les taps.
 - `DemoRenderer` — la timeline : enchaîne les `Effect`, gère fondus et tap.
-- `Effect` — un contrat simple (`onSurfaceCreated` / `onResize` / `render`) ;
-  ajouter un effet = écrire une classe et l'ajouter à la liste du renderer.
-- `effects/` — `PlasmaEffect`, `ChromeTorusEffect`, `ScrollerEffect`.
+- `Effect` — le contrat (`onSurfaceCreated` / `onResize` / `render`).
+- `FragmentEffect` — classe de base pour les effets « plein écran » : gère le
+  quad et les uniforms standard (`uTime`, `uResolution`, `uFade`), avec des
+  hooks pour les uniforms/ressources supplémentaires (textures…).
+- `effects/` — les 7 effets ci-dessus.
 
 ## Ajouter un effet
 
-Implémenter `Effect`, puis l'ajouter à la liste dans `DemoRenderer`. La plupart
-des effets demoscene tiennent dans un fragment shader plein écran (le quad et
-les helpers GLSL sont déjà fournis).
+La plupart des effets demoscene tiennent dans un fragment shader plein écran.
+Le plus souvent il suffit d'étendre `FragmentEffect`, de fournir le shader, puis
+d'ajouter la classe à la liste dans `DemoRenderer` :
+
+```kotlin
+class MonEffet : FragmentEffect("MonEffet", durationSeconds) {
+    override fun fragmentSource() = FRAGMENT
+    companion object { private const val FRAGMENT = """ ... """ }
+}
+```
+
+Le shader reçoit `uTime` (secondes depuis le début de la partie), `uResolution`
+et `uFade` (0..1 pour les fondus). Pour des uniforms ou ressources en plus
+(texture, etc.), surcharger `onProgramReady` / `onRender` / `onDispose` — voir
+`ScrollerEffect`.
