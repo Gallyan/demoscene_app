@@ -1,7 +1,7 @@
 package net.orsal.demoscene
 
 /** Number of frequency bands exposed to audio-reactive effects. */
-const val AUDIO_BANDS = 16
+const val AUDIO_BANDS = 32
 
 /** Live audio analysis the effects can react to. */
 interface AudioSource {

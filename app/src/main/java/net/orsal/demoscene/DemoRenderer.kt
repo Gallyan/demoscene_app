@@ -19,6 +19,7 @@ import net.orsal.demoscene.effects.PoulmouslipEffect
 import net.orsal.demoscene.effects.RotozoomEffect
 import net.orsal.demoscene.effects.ScrollerEffect
 import net.orsal.demoscene.effects.ShadebobsEffect
+import net.orsal.demoscene.effects.SpectrumEffect
 import net.orsal.demoscene.effects.StarfieldEffect
 import net.orsal.demoscene.effects.TunnelEffect
 import net.orsal.demoscene.effects.TwisterEffect
@@ -53,6 +54,7 @@ class DemoRenderer(
         GlenzEffect(),
         DotBallEffect(),
         KefrenEffect(),
+        SpectrumEffect(),
         ShadebobsEffect(),
         VoxelEffect(),
         StarfieldEffect(),
