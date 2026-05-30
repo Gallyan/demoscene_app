@@ -47,7 +47,7 @@ object VoiceSynth {
             totalMs += p.durMs
         }
         val total = SAMPLE_RATE * totalMs / 1000
-        val out = ShortArray(total)
+        val buf = DoubleArray(total)
 
         val noise = Random(0xC0FFEE)
         var carrierPhase = 0.0
@@ -87,15 +87,30 @@ object VoiceSynth {
                         0.15 * biquad(state[2], source, ph.f3)
 
                 val level = if (ph.level <= 0.001) 0.9 else ph.level
-                val v = shaped * env * level * 0.5
                 if (writePos < total) {
-                    out[writePos] = (clamp(v) * Short.MAX_VALUE).toInt().toShort()
+                    buf[writePos] = shaped * env * level
                 }
                 writePos++
                 globalSample++
             }
         }
-        // Remaining samples stay zero (the trailing gap before it repeats).
+
+        // Normalize to a strong, clearly audible level (the talkbox formants are
+        // otherwise quiet relative to the music).
+        var peak = 0.0
+        for (s in buf) {
+            val a = if (s < 0.0) -s else s
+            if (a > peak) {
+                peak = a
+            }
+        }
+        val gain = if (peak > 0.0001) 0.95 / peak else 0.0
+
+        val out = ShortArray(total)
+        for (i in buf.indices) {
+            out[i] = (clamp(buf[i] * gain) * Short.MAX_VALUE).toInt().toShort()
+        }
+        // Trailing samples stay zero (the gap before the word repeats).
         return out
     }
 

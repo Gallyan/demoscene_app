@@ -10,10 +10,10 @@ import android.view.MotionEvent
  */
 class DemoSurfaceView(
     context: Context,
-    onVoiceActive: (Boolean) -> Unit,
+    onEffectChanged: (name: String, voice: Boolean) -> Unit,
 ) : GLSurfaceView(context) {
 
-    private val demoRenderer = DemoRenderer(context, onVoiceActive)
+    private val demoRenderer = DemoRenderer(context, onEffectChanged)
 
     init {
         setEGLContextClientVersion(2)

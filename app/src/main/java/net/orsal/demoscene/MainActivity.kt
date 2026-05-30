@@ -1,12 +1,16 @@
 package net.orsal.demoscene
 
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.TextView
 
 /**
  * Launches straight into the demo: a fullscreen, immersive GL surface that keeps
@@ -17,13 +21,18 @@ class MainActivity : Activity() {
 
     private lateinit var surfaceView: DemoSurfaceView
     private lateinit var soundButton: ImageButton
+    private lateinit var effectLabel: TextView
     private val music = ChiptunePlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        surfaceView = DemoSurfaceView(this) { active -> music.voiceActive = active }
+        effectLabel = buildEffectLabel()
+        surfaceView = DemoSurfaceView(this) { name, voice ->
+            music.voiceActive = voice
+            effectLabel.post { effectLabel.text = name }
+        }
         soundButton = buildSoundButton()
 
         val root = FrameLayout(this).apply {
@@ -35,6 +44,7 @@ class MainActivity : Activity() {
                 ),
             )
             addView(soundButton, soundButtonLayout())
+            addView(effectLabel, effectLabelLayout())
         }
 
         setContentView(root)
@@ -75,6 +85,29 @@ class MainActivity : Activity() {
                 )
                 alpha = if (muted) 0.45f else 0.7f
             }
+        }
+    }
+
+    private fun buildEffectLabel(): TextView {
+        return TextView(this).apply {
+            typeface = Typeface.create("sans-serif-thin", Typeface.NORMAL)
+            setTextColor(Color.WHITE)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            alpha = 0.6f
+            isAllCaps = false
+        }
+    }
+
+    private fun effectLabelLayout(): FrameLayout.LayoutParams {
+        val margin = dp(12)
+        return FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.START
+            bottomMargin = margin
+            leftMargin = margin
+            marginStart = margin
         }
     }
 

@@ -102,7 +102,8 @@ class ChiptunePlayer {
                         voicePos = 0
                         wasVoice = true
                     }
-                    value += voice[voicePos].toInt()
+                    // Duck the music so the spoken word cuts through.
+                    value = value / 2 + voice[voicePos].toInt()
                     voicePos = (voicePos + 1) % voice.size
                 } else {
                     wasVoice = false

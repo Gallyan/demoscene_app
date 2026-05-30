@@ -23,10 +23,12 @@ class MandelbrotEffect : FragmentEffect("Mandelbrot", 16f) {
                 vec2 uv = vPos;
                 uv.x *= uResolution.x / uResolution.y;
 
-                // Continuous zoom toward a fixed detailed point.
+                // Continuous zoom + rotation toward a fixed detailed point.
                 float scale = 2.6 * exp(-uTime * 0.22);
+                float ang = uTime * 0.25;
+                mat2 rot = mat2(cos(ang), -sin(ang), sin(ang), cos(ang));
                 vec2 center = vec2(-0.743643887037151, 0.131825904205330);
-                vec2 c = center + uv * scale;
+                vec2 c = center + rot * uv * scale;
 
                 vec2 z = vec2(0.0);
                 float iter = 0.0;

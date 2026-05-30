@@ -6,8 +6,9 @@ l'esprit de la demoscene. Pas de menu, pas d'UI : ça se lance, ça joue.
 ## Effets
 
 La démo est **pilotée au tap** : chaque partie fait son fondu d'entrée et reste
-à l'écran ; un **tap** (ailleurs que sur l'icône son) passe à la suivante. Les
-20 parties, dans l'ordre :
+à l'écran ; un **tap** (ailleurs que sur l'icône son) passe à la suivante. Le
+nom de l'effet en cours s'affiche discrètement en bas à gauche. Les 21 parties,
+dans l'ordre :
 
 1. **Plasma** — somme de champs sinusoïdaux dans une palette qui cycle.
 2. **Rotozoom** — damier infini qui tourne et zoome.
@@ -28,10 +29,11 @@ La démo est **pilotée au tap** : chaque partie fait son fondu d'entrée et res
 17. **Particles** — fontaine de particules balistiques sous gravité.
 18. **Feedback** — feedback vidéo simulé (zoom-rotation récursif).
 19. **Mandelbrot** — zoom continu dans la fractale, palette qui cycle.
-20. **Poulmouslip** — une poulette de l'espace en slip, en 3D raymarchée, qui
-    tourne sur un fond étoilé, avec un scroll « ON EST DES POULMOUSLIP !! ».
-    Pendant cette partie, une voix robotique façon talkbox (synthétisée par
-    formants) scande « poulmouslip » par-dessus la musique.
+20. **Poulmouslip** — quatre poulettes en slip dans un bateau gonflable qui
+    flotte sur une rivière (eau qui coule, berges, ciel), en 3D raymarchée, avec
+    un scroll « ON EST DES POULMOUSLIP !! ». Pendant cette partie, une voix
+    robotique façon talkbox (synthétisée par formants) scande « poulmouslip »
+    par-dessus la musique (qui est atténuée pour la laisser passer).
 21. **Scroller** — scroll sinusoïdal sur copper bars (texte cuit en texture).
 
 Une **musique chiptune** synthétisée en code tourne en fond ; une icône

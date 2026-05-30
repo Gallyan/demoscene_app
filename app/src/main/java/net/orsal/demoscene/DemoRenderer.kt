@@ -35,7 +35,7 @@ import javax.microedition.khronos.opengles.GL10
  */
 class DemoRenderer(
     private val context: Context,
-    private val onVoiceActive: (Boolean) -> Unit,
+    private val onEffectChanged: (name: String, voice: Boolean) -> Unit,
 ) : GLSurfaceView.Renderer {
 
     private val effects: List<Effect> = listOf(
@@ -81,7 +81,7 @@ class DemoRenderer(
         current = 0
         localTime = 0f
         lastFrameNanos = 0L
-        notifyVoice()
+        notifyEffect()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -113,11 +113,12 @@ class DemoRenderer(
         current = (current + 1) % effects.size
         localTime = 0f
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-        notifyVoice()
+        notifyEffect()
     }
 
-    private fun notifyVoice() {
-        onVoiceActive(effects[current] is PoulmouslipEffect)
+    private fun notifyEffect() {
+        val effect = effects[current]
+        onEffectChanged(effect.name, effect is PoulmouslipEffect)
     }
 
     fun requestAdvance() {

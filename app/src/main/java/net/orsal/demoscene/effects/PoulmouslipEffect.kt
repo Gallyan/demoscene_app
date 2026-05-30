@@ -4,9 +4,11 @@ import android.opengl.GLES20
 import net.orsal.demoscene.R
 
 /**
- * The kids' very own effect: a spinning 3D space hen in underpants -- a
- * "Poulmouslip" (poule mouillée en slip) -- raymarched from SDF primitives over
- * a starfield, with a sine scroller chanting the battle cry underneath.
+ * The kids' very own effect: four little "Poulmouslip" hens (poules mouillées en
+ * slip) sitting in a kid's inflatable dinghy, bobbing down a flowing river. The
+ * hens, dinghy and water are raymarched / shaded procedurally, with a sine
+ * scroller chanting the battle cry underneath. While it plays, a robotic talkbox
+ * voice says "poulmouslip" over the music (see ChiptunePlayer / VoiceSynth).
  */
 class PoulmouslipEffect : FragmentEffect("Poulmouslip", 16f) {
 
@@ -50,11 +52,6 @@ class PoulmouslipEffect : FragmentEffect("Poulmouslip", 16f) {
             uniform sampler2D uTex;
             uniform float uTexAspect;
 
-            mat3 rotY(float a) {
-                float c = cos(a); float s = sin(a);
-                return mat3(c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c);
-            }
-
             float sdSphere(vec3 p, float r) { return length(p) - r; }
 
             float sdEllipsoid(vec3 p, vec3 r) {
@@ -63,11 +60,9 @@ class PoulmouslipEffect : FragmentEffect("Poulmouslip", 16f) {
                 return k0 * (k0 - 1.0) / max(k1, 0.0001);
             }
 
-            float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
-                vec3 pa = p - a;
-                vec3 ba = b - a;
-                float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
-                return length(pa - ba * h) - r;
+            float sdTorus(vec3 p, vec2 t) {
+                vec2 q = vec2(length(p.xz) - t.x, p.y);
+                return length(q) - t.y;
             }
 
             float smin(float a, float b, float k) {
@@ -75,72 +70,109 @@ class PoulmouslipEffect : FragmentEffect("Poulmouslip", 16f) {
                 return mix(b, a, h) - k * h * (1.0 - h);
             }
 
-            vec2 opU(vec2 a, vec2 b) {
-                return (a.x < b.x) ? a : b;
-            }
+            vec2 opU(vec2 a, vec2 b) { return (a.x < b.x) ? a : b; }
 
-            mat3 gRot;
-
-            // Returns (distance, material id) in object space.
+            // One small hen in local space (facing +z, sitting). Materials:
+            // 1 feathers, 2 beak, 3 eye, 4 comb, 5 slip.
             vec2 hen(vec3 p) {
-                vec2 res = vec2(sdEllipsoid(p - vec3(0.0, -0.1, 0.0), vec3(0.5, 0.6, 0.45)), 1.0);
-                float head = sdSphere(p - vec3(0.0, 0.55, 0.05), 0.34);
-                res.x = smin(res.x, head, 0.18);
+                float body = sdEllipsoid(p - vec3(0.0, 0.18, 0.0), vec3(0.22, 0.20, 0.22));
+                float head = sdSphere(p - vec3(0.0, 0.42, 0.06), 0.14);
+                float d = smin(body, head, 0.08);
+                float mat = (p.y < 0.18) ? 5.0 : 1.0; // lower body = slip
+                vec2 res = vec2(d, mat);
 
-                float wingL = sdEllipsoid(p - vec3(0.46, 0.0, 0.0), vec3(0.12, 0.34, 0.3));
-                float wingR = sdEllipsoid(p - vec3(-0.46, 0.0, 0.0), vec3(0.12, 0.34, 0.3));
-                res = opU(res, vec2(min(wingL, wingR), 1.0));
-
-                float beak = sdEllipsoid(p - vec3(0.0, 0.48, 0.37), vec3(0.09, 0.07, 0.18));
+                float beak = sdEllipsoid(p - vec3(0.0, 0.40, 0.18), vec3(0.04, 0.03, 0.07));
                 res = opU(res, vec2(beak, 2.0));
 
-                float eyeL = sdSphere(p - vec3(0.14, 0.62, 0.27), 0.06);
-                float eyeR = sdSphere(p - vec3(-0.14, 0.62, 0.27), 0.06);
-                res = opU(res, vec2(min(eyeL, eyeR), 3.0));
-
-                float comb = sdSphere(p - vec3(0.0, 0.9, 0.12), 0.11);
-                comb = min(comb, sdSphere(p - vec3(0.0, 0.92, -0.02), 0.1));
-                comb = min(comb, sdSphere(p - vec3(0.0, 0.85, 0.24), 0.09));
+                float comb = sdSphere(p - vec3(0.0, 0.55, 0.04), 0.05);
                 res = opU(res, vec2(comb, 4.0));
 
-                float wattle = sdSphere(p - vec3(0.0, 0.36, 0.32), 0.07);
-                res = opU(res, vec2(wattle, 4.0));
-
-                float ant = sdCapsule(p, vec3(0.0, 0.9, 0.0), vec3(0.0, 1.2, 0.0), 0.02);
-                res = opU(res, vec2(ant, 2.0));
-                float antBall = sdSphere(p - vec3(0.0, 1.25, 0.0), 0.07);
-                res = opU(res, vec2(antBall, 4.0));
-
-                float legL = sdCapsule(p, vec3(0.15, -0.6, 0.05), vec3(0.17, -0.95, 0.1), 0.04);
-                float legR = sdCapsule(p, vec3(-0.15, -0.6, 0.05), vec3(-0.17, -0.95, 0.1), 0.04);
-                res = opU(res, vec2(min(legL, legR), 2.0));
-
-                float footL = sdCapsule(p, vec3(0.17, -0.95, 0.1), vec3(0.17, -0.95, 0.3), 0.04);
-                float footR = sdCapsule(p, vec3(-0.17, -0.95, 0.1), vec3(-0.17, -0.95, 0.3), 0.04);
-                res = opU(res, vec2(min(footL, footR), 2.0));
-
+                float eyes = min(
+                    sdSphere(p - vec3(0.06, 0.46, 0.15), 0.02),
+                    sdSphere(p - vec3(-0.06, 0.46, 0.15), 0.02)
+                );
+                res = opU(res, vec2(eyes, 3.0));
                 return res;
             }
 
-            vec2 map(vec3 p) {
-                return hen(gRot * p);
+            float boatY() {
+                return 0.18 + 0.05 * sin(uTime * 1.5);
+            }
+
+            vec2 mapScene(vec3 p) {
+                float by = boatY();
+                vec3 bp = p - vec3(0.0, by, 0.0);
+
+                // Inflatable dinghy: a fat tube ring plus a rounded bottom.
+                float ring = sdTorus(bp, vec2(0.95, 0.22));
+                float bottom = sdEllipsoid(bp - vec3(0.0, -0.18, 0.0), vec3(1.05, 0.18, 1.05));
+                vec2 res = vec2(min(ring, bottom), 10.0);
+
+                // Four hens seated inside.
+                res = opU(res, hen(p - vec3(0.42, by, 0.42)));
+                res = opU(res, hen(p - vec3(-0.42, by, 0.42)));
+                res = opU(res, hen(p - vec3(0.42, by, -0.42)));
+                res = opU(res, hen(p - vec3(-0.42, by, -0.42)));
+                return res;
             }
 
             vec3 calcNormal(vec3 p) {
                 vec2 e = vec2(0.002, 0.0);
                 return normalize(vec3(
-                    map(p + e.xyy).x - map(p - e.xyy).x,
-                    map(p + e.yxy).x - map(p - e.yxy).x,
-                    map(p + e.yyx).x - map(p - e.yyx).x
+                    mapScene(p + e.xyy).x - mapScene(p - e.xyy).x,
+                    mapScene(p + e.yxy).x - mapScene(p - e.yxy).x,
+                    mapScene(p + e.yyx).x - mapScene(p - e.yyx).x
                 ));
             }
 
-            vec3 spaceBg(vec2 uv) {
-                vec3 c = mix(vec3(0.02, 0.0, 0.06), vec3(0.0, 0.03, 0.13), uv.y * 0.5 + 0.5);
-                vec2 g = floor(uv * 60.0);
-                float h = fract(sin(dot(g, vec2(12.9898, 78.233))) * 43758.5453);
-                c += step(0.985, h);
-                return c;
+            vec3 skyCol(vec3 rd) {
+                float h = clamp(rd.y * 0.5 + 0.5, 0.0, 1.0);
+                vec3 sky = mix(vec3(0.75, 0.86, 1.0), vec3(0.2, 0.45, 0.85), h);
+                float sun = pow(max(dot(rd, normalize(vec3(0.3, 0.5, -0.6))), 0.0), 220.0);
+                sky += vec3(1.0, 0.95, 0.8) * sun * 2.0;
+                return sky;
+            }
+
+            float riverWave(vec2 xz) {
+                float h = sin(xz.x * 3.0 + xz.y * 1.0 + uTime * 1.6) * 0.5;
+                h += sin(xz.x * 1.5 - xz.y * 2.5 + uTime * 2.2) * 0.3;
+                return h;
+            }
+
+            // Background: flowing river between grassy banks, under a sky.
+            vec3 scene(vec3 ro, vec3 rd) {
+                if (rd.y < -0.001) {
+                    float t = -ro.y / rd.y;
+                    vec3 p = ro + rd * t;
+                    float fog = clamp(1.0 - exp(-t * 0.04), 0.0, 1.0);
+                    vec3 horizon = vec3(0.72, 0.83, 0.96);
+
+                    if (abs(p.x) > 2.6) {
+                        float n = fract(sin(dot(floor(p.xz * 2.0), vec2(12.9898, 78.233))) * 43758.5);
+                        vec3 grass = vec3(0.18, 0.42, 0.14) * (0.8 + 0.3 * n);
+                        return mix(grass, horizon, fog);
+                    }
+
+                    vec2 e = vec2(0.05, 0.0);
+                    float hx = riverWave(p.xz + e.xy) - riverWave(p.xz - e.xy);
+                    float hz = riverWave(p.xz + e.yx) - riverWave(p.xz - e.yx);
+                    vec3 n = normalize(vec3(-hx * 0.3, 1.0, -hz * 0.3));
+                    vec3 refl = reflect(rd, n);
+                    vec3 water = mix(vec3(0.05, 0.2, 0.28), skyCol(refl), 0.55);
+                    float spec = pow(max(dot(refl, normalize(vec3(0.3, 0.5, -0.6))), 0.0), 64.0);
+                    water += spec * vec3(1.0);
+                    return mix(water, horizon, fog);
+                }
+                return skyCol(rd);
+            }
+
+            vec3 matColor(float mat) {
+                if (mat < 1.5) { return vec3(1.0, 0.93, 0.72); } // feathers
+                if (mat < 2.5) { return vec3(1.0, 0.6, 0.05); }  // beak
+                if (mat < 3.5) { return vec3(0.03, 0.03, 0.03); } // eye
+                if (mat < 4.5) { return vec3(0.9, 0.12, 0.12); }  // comb
+                if (mat < 5.5) { return vec3(0.1, 0.35, 0.95); }  // slip
+                return vec3(1.0, 0.8, 0.1);                       // dinghy
             }
 
             void main() {
@@ -148,65 +180,43 @@ class PoulmouslipEffect : FragmentEffect("Poulmouslip", 16f) {
                 vec2 uv = vPos;
                 uv.x *= aspect;
 
-                gRot = rotY(uTime * 1.0);
-
-                vec3 ro = vec3(0.0, -0.05, 4.0);
-                vec3 rd = normalize(vec3(uv, -2.2));
+                vec3 ro = vec3(0.0, 1.3, 3.7);
+                vec3 rd = normalize(vec3(uv.x, uv.y - 0.28, -1.6));
 
                 float t = 0.0;
                 bool hit = false;
                 for (int i = 0; i < 90; i++) {
                     vec3 pos = ro + rd * t;
-                    float d = map(pos).x;
+                    float d = mapScene(pos).x;
                     if (d < 0.001) { hit = true; break; }
                     t += d;
-                    if (t > 10.0) break;
+                    if (t > 14.0) break;
                 }
 
                 vec3 col;
                 if (hit) {
                     vec3 hp = ro + rd * t;
                     vec3 nrm = calcNormal(hp);
-                    vec3 objp = gRot * hp;
-                    float mat = map(hp).y;
+                    float mat = mapScene(hp).y;
+                    vec3 base = matColor(mat);
 
-                    vec3 base;
-                    if (mat < 1.5) {
-                        base = vec3(1.0, 0.93, 0.72); // feathers
-                    } else if (mat < 2.5) {
-                        base = vec3(1.0, 0.6, 0.05);  // beak / legs
-                    } else if (mat < 3.5) {
-                        base = vec3(0.03, 0.03, 0.03); // eyes
-                    } else {
-                        base = vec3(0.9, 0.12, 0.12);  // comb / wattle / antenna ball
-                    }
-
-                    // The slip: paint the lower torso of the body.
-                    if (mat < 1.5 && objp.y < -0.02 && objp.y > -0.5
-                            && length(objp.xz) < 0.62) {
-                        vec3 slip = vec3(0.1, 0.35, 0.95);
-                        float dots = sin(objp.x * 26.0) * sin(objp.y * 26.0 + objp.z * 12.0);
-                        if (dots > 0.45) { slip = vec3(1.0); }
-                        if (objp.y > -0.08) { slip = vec3(1.0); } // waistband
-                        base = slip;
-                    }
-
-                    vec3 lightDir = normalize(vec3(0.4, 0.7, 0.6));
+                    vec3 lightDir = normalize(vec3(0.4, 0.8, 0.3));
                     float diff = max(dot(nrm, lightDir), 0.0);
                     float rim = pow(1.0 - max(dot(nrm, -rd), 0.0), 2.0);
-                    col = base * (0.28 + 0.8 * diff) + rim * 0.15;
+                    col = base * (0.3 + 0.8 * diff) + rim * 0.12;
 
-                    if (mat > 2.5 && mat < 3.5) {
-                        float glint = pow(max(dot(reflect(-lightDir, nrm), -rd), 0.0), 20.0);
+                    // Glossy highlight on eyes and the rubbery dinghy.
+                    if (mat > 9.5 || (mat > 2.5 && mat < 3.5)) {
+                        float glint = pow(max(dot(reflect(-lightDir, nrm), -rd), 0.0), 24.0);
                         col += vec3(1.0) * glint;
                     }
                 } else {
-                    col = spaceBg(uv);
+                    col = scene(ro, rd);
                 }
 
                 // --- Battle-cry scroller along the bottom ---
                 float bandHalf = 0.15;
-                float waveCenter = -0.78 + 0.05 * sin(uv.x * 2.0 + uTime * 2.0);
+                float waveCenter = -0.80 + 0.05 * sin(uv.x * 2.0 + uTime * 2.0);
                 float vb = (vPos.y - waveCenter) / bandHalf;
                 if (abs(vb) < 1.0) {
                     float speed = 0.45;
