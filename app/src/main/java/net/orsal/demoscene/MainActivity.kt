@@ -72,9 +72,10 @@ class MainActivity : Activity() {
     private fun buildSoundButton(): ImageButton {
         val pad = dp(10)
         return ImageButton(this).apply {
-            setImageResource(R.drawable.ic_volume_up)
+            // Sound starts muted; the icon reflects that until tapped.
+            setImageResource(R.drawable.ic_volume_off)
             background = null
-            alpha = 0.7f
+            alpha = 0.45f
             setPadding(pad, pad, pad, pad)
             contentDescription = getString(R.string.sound_toggle)
             setOnClickListener {

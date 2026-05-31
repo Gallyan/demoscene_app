@@ -22,7 +22,7 @@ import kotlin.math.tanh
 class ChiptunePlayer : AudioSource {
 
     @Volatile
-    var muted = false
+    var muted = true
         private set
 
     /** Current playback position in beats, wrapped over a bar (0..4). */
